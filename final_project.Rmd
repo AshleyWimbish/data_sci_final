@@ -1,0 +1,436 @@
+---
+title: "Final Project"
+subtitle: "Data Science for Biologists, Spring 2024"
+author: "Ashley Wimbish"
+html_document:
+    toc: True
+    theme: yeti
+    highlight: zenburn
+editor_options: 
+  chunk_output_type: console
+---
+#### A Hypothesis is a Liability
+
+>“Tiger got to hunt, bird got to fly;
+Man got to sit and wonder 'why, why, why?'
+Tiger got to sleep, bird got to land;
+Man got to tell himself he understand.”
+-Kurt Vonnegut
+
+In their paper, [A hypothesis is a liability](https://doi.org/10.1186/s13059-020-02133-w), Yanai and Lercher argue that hypotheses come with a hidden cost. Our minds focus on the specific hypothesis we want to disprove, preventing us from finding new ideas in data. In the paper, some subjects of their experiment were also given a specific hypothesis to test while others were asked to simply explore the data. However, there was an important glaring pattern in the data that a scatterplot revealed the picture of a gorilla. They found that people with a specific hypothesis to test were *more* likely to miss this pattern in the data. This idea is similar to another in the philosophy of science. Norwood Russell Hanson argued that astronomers Kepler and Brahe, opposing in theory, literally saw different things at dawn. After performing my own data analysis project, I agree with the conclusions of Yanai and Lercher. There dozens of tables and graphs that did not make into this final document simply because they were focused a specific question that yielded underwhelming results. I would also argue that modern post-hoc analyses add to the statistical power of our tests. Post-hoc analyses allow us to aggregate massive sample sizes that are more likely to be normal distributed regardless of the population's distribution. The following is my exploration and post-hoc analysis of a data set published by The California Department of Public Health from 22 years of disease records.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo = TRUE, include = TRUE)
+# Load all libraries you use HERE
+library(tidyverse)
+library(dplyr)
+theme_set(theme_minimal())
+```
+
+<br>
+
+#### Dataset Introduction
+The [Infectious Diseases by Disease, County, Year, and Sex Dataset](https://catalog.data.gov/dataset/infectious-diseases-by-disease-co unty-year-and-sex-8912) published by The California Department of Public Health is to refer as `infect_data` in this analysis. `infect_data` contains case counts for selected infectious diseases from different counties in California from 2001 through 2022.
+<br><br>
+The data piqued my interest because it includes a wide range of infectious diseases. Some of which are food borne illnesses. I also thought it was interesting that the cases are sorted by sex. I found [sex-specific virulence](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5159935/) has been theorized in a wide range of diseases when researching for this project. Which was a new concept for me.<!--This would be a great topic for more research in day science as well. Both in biological science and epidemiology. --> There may also be an epidemiological trend of infectious disease cases based on sex with or without biological basis.
+
+
+```{r read-and-wrangle-data, include=FALSE}
+# Code to read in the data:
+data_path2 <- here::here("AWimbish",
+                         "final_project",
+                         "datasets",
+                         "infectious_disease_data.csv")
+
+top_level_directory <- here::here()
+
+figure_path <- file.path(top_level_directory, "AWimbish", "final_project", "final_figures")
+
+infect_csv= readr::read_csv(data_path2)
+
+# Code to clean the data:
+infect_csv |> ##REMOVE DISEASES WITH NO CASES AT ALL
+  filter(Sex=="Total") |> 
+  group_by(Disease) |> 
+  summarize(max_case=max(Cases)) |> 
+  arrange(max_case) |> 
+  slice(1:4) |> 
+  ungroup() |> 
+  select(Disease) |> 
+  pull() -> no_cases# NO CASES FOR Yellow Fever, Viral Hemorrhagic Fevers (including Crimean-Congo, Ebola, Lassa, and Marburg viruses), "Domoic Acid Poisoning" or Anthrax
+
+infect_csv |> 
+  mutate(infection_rate = Cases/Population) |> 
+  drop_na() |> #removing all of the missing data points
+  filter(! Disease %in% no_cases)-> infect_data 
+
+```
+
+
+```{r mutate_transmisson, include=FALSE}
+food_borne <- c("Botulism, Foodborne",
+                "Campylobacteriosis",
+                "Ciguatera Fish Poisoning",
+                "Cysticercosis or Taeniasis",
+                "Domoic Acid Poisoning",
+                "Brucellosis",
+                "Hemolytic Uremic Syndrome",
+                "Listeriosis",
+                "Salmonellosis",
+                "Scombroid Fish Poisoning",
+                "Shiga toxin-producing E. coli (STEC) with HUS",
+                "Shiga toxin-producing E. coli (STEC) without HUS",
+                "Trichinosis",
+                "Yersiniosis")
+
+vector_borne <- c("Flavivirus Infection of Undetermined Species",
+                      "Ehrlichiosis",
+                      "Dengue Virus Infection",
+                      "Chikungunya Virus Infection",
+                      "Babesiosis",
+                      "Anaplasmosis",
+                      "Lyme Disease",
+                      "Malaria",
+                      "Relapsing Fever",
+                      "Spotted Fever Rickettsiosis",
+                      "Yellow Fever",
+                      "Zika Virus Infection")
+infect_data |> 
+  mutate(Transmission = case_when(Disease %in% food_borne ~ "foodborne",
+                               Disease %in% vector_borne ~ "vectorborne", 
+                               TRUE~ "other")) -> infect_data_transmission
+```
+
+
+The variables in the dataset are as follows:
+
+  + `Disease`: the disease recorded for each case count
+  + `County`: the county that each count of cases occured
+  + `Year`: the year that each case count was taken
+  + `Sex`: `Male`, `Female`, or `Total`
+  + `Cases`: count of cases
+  + `Population`: population for each county in a given year
+  + `Rate`: rate of infection from the original data-set ("-" indicates rate of zero)
+  + `Lower_95_CI`: Lower 95% confidence interval of `Rate`
+  + `Upper_95_CI`: Upper 95% confidence interval of `Rate`
+  + `infection_rate`: the infection rate created for this project 
+  + `Transmission`: mode of transmission (diseases that could also be considered water-borne were excluded from the `food_borne` level)
+
+<br>
+
+#### Q1. Across all diseases, which counties in California have the highest infectious disease rate from 2001-2022?
+
+Across all diseases and years included in this data set, Kern County had the highest overall infection rate. It is interesting that this conclusion changes when we `filter` for food-borne illness. In the second plot, San Francisco County has the highest average infection rate from 2001-2022. 
+```{r q1}
+infect_data_transmission |> 
+  filter(Sex == "Total",
+         County != "California") |> 
+  group_by(County) |> 
+  summarize(mean_rate = mean(infection_rate)) |> 
+  arrange(-mean_rate) |> 
+  slice(1:15) |> 
+  ggplot() +
+  aes(y= fct_reorder(County, mean_rate),
+      x= mean_rate,
+      fill="orange") +
+  geom_segment(aes(x = 0, 
+                   xend = mean_rate,
+                   y = fct_reorder(County, mean_rate), 
+                   yend = fct_reorder(County, mean_rate))) +
+  geom_point(shape = 21, 
+             size = 3.5,
+             show.legend=FALSE) +
+  labs(x= "Mean Infection Rate",
+      y= "County",
+      title= "Highest California Counties by Average Infection Rate",
+      subtitle= "Infection Rate Across all Diseases From 2001-2022") 
+
+infect_data_transmission |> 
+  filter(Sex == "Total",
+         County != "California",
+         Transmission=="foodborne") |> 
+  group_by(County) |> 
+  summarize(mean_rate = mean(infection_rate)) |> 
+  arrange(-mean_rate) |> 
+  slice(1:15) |> 
+  ggplot() +
+  aes(y= fct_reorder(County, mean_rate),
+      x= mean_rate,
+      fill="orange") +
+  geom_segment(aes(x = 0, 
+                   xend = mean_rate,
+                   y = fct_reorder(County, mean_rate), 
+                   yend = fct_reorder(County, mean_rate))) +
+  geom_point(shape = 21, 
+             size = 3.5,
+             show.legend=FALSE) +
+  labs(x= "Mean Infection Rate",
+      y= "County",
+      title= "Highest California Counties by Average Food-Borne Infection Rate",
+      subtitle= "Infection Rate Across all Food-Borne Illness From 2001-2022")
+```
+
+<br>
+
+#### Q2. In California, which years had the highest rate of food-borne illness infection?
+California had the highest rate of food-borne illness infection in 2019. This is followed closely by 2018 and 2022. Interestingly, this plot also shows that the average infection rate of food-borne illness goes down dramatically in 2020.
+```{r q2, fig.width= 9, fig.height=5}
+infect_data_transmission_q2 <- infect_data_transmission
+infect_data_transmission_q2$Year <- as.factor(infect_data_transmission$Year)
+
+infect_data_transmission_q2 |> 
+  filter(Sex == "Total",
+         County== "California",
+         Transmission=="foodborne") |> 
+  group_by(Year) |> 
+  summarize(mean_rate = mean(infection_rate)) |> 
+  ggplot() +
+  aes(x= Year,
+      y= mean_rate) +
+  geom_col(aes(fill=Year)) +
+  labs(y= "Mean Infection Rate",
+       x= "Year",
+       title= "Average Food-Borne Illness Infection Rate 
+       Within Each Year in California ")
+```
+
+```{r table_1, echo=FALSE}
+infect_data_transmission_q2 |> 
+  filter(Sex == "Total",
+         County== "California",
+         Transmission=="foodborne") |> 
+  group_by(Year) |> 
+  summarize(mean_rate = mean(infection_rate)) |> 
+  arrange(-mean_rate) |> 
+  slice(1:15) |> 
+  mutate(Percentage = mean_rate*100) |> 
+  select(-mean_rate)-> q2_tibble
+
+
+knitr::kable(q2_tibble, digits = 4, 
+             caption= "Highest Average Percentage of Food-Borne Illness in California by Year")
+
+```
+
+#### Q3. In California, what is the correlation between population and average cases of infectious disease in a given year from 2001-2022?
+
+From 2001-2022, there is a strong ($r=0.7796$) correlation between average cases in a given year and population overall in California. A correlation test found that around 61% of the variation in average cases in California from 2001-2022 can be explained by the linear regression model against population size ($r^2=0.6074$). This was found to have high level of significance ($p=2.0456*10^{-201})$). The average number of cases across all diseases went up around 5 cases for every 100,000 people in the population ($slope=5.6496*10^{-5}$). Here the decrease in average cases in 2020 is also shown.
+
+```{r q3}
+infect_data_transmission_q2 |>
+  filter(Sex == "Total", 
+         County== "California") |>
+  group_by(Year) |> 
+  mutate(mean_cases=mean(Cases)) |> 
+  ggplot(aes(y=mean_cases,
+             x=Population)) +
+  geom_point(aes(color=Year)) +
+  geom_smooth(color= "black", 
+              method= 'lm', se= F) +
+  labs(y= "Average Number of Cases per Year")
+
+infect_data_transmission |>
+  filter(Sex == "Total", 
+         County== "California") |>
+  group_by(Year) |> 
+  mutate(mean_cases=mean(Cases)) -> q3_point_data
+
+#cor.test(q3_point_data$mean_cases,
+#         q3_point_data$Population, 
+#        method = "pearson")
+
+#model <- lm(formula = q3_point_data$mean_cases ~ q3_point_data$Population)
+
+#model
+ 
+#summary(model)
+
+```
+
+```{r table_2, echo= FALSE}
+infect_data_transmission_q2 |> 
+  filter(Sex == "Total",
+         County == "California") |>
+  group_by(Year) |> 
+  mutate(Cases = mean(Cases)) |> 
+  ungroup() |> 
+  select(Year, Population, Cases) |> 
+  slice(1:22)-> q3_tibble
+
+
+knitr::kable(q3_tibble, digits = 4, 
+             caption= "Population and Average Case of Infectious Disease in California by Year")
+
+```
+
+
+#### Q4. Does the correlation between population and average cases of infectious disease in a given year differ in different modes of transmission?
+For vector borne disease, there is a weak correlation ($r=0.3674$) between average cases and population size. The model could only explain around 13% of the variation in average cases of vector borne illness ($p=1.369*10^{-7}$). 
+<br>
+For food borne disease, there was a very strong correlation ($r=0.8457$). The model could only explain around 72% of the variation in average cases of food borne illness ($p=2.021*10^{-79}$). On average, there was a case of food-borne illness for every 10,000 people in California from 2001-2022. 
+<br>
+All other diseases had a strong correlation ($r=0.6509$). 42% of the varation in average cases of all other disease were explained by the linear regression ($p=8.195*10^{-62}$). The slope of average cases of all other diseases as a function of population ($slope=5.7084*10^{-5}$) was also similar to the slope found in question 3 ($slope=5.6496*10^{-5}$). It is important the note that sample size was comparable in food-borne and vector-borne illness, but much larger for all other illness.
+```{r q4}
+infect_data_transmission |>
+  filter(Sex == "Total", 
+         County== "California") |>
+  group_by(Year, Transmission) |> 
+  mutate(mean_cases=mean(Cases)) |> 
+  ggplot(aes(y=mean_cases,
+             x=Population,
+             color= Transmission)) +
+  geom_point() +
+  geom_smooth(method= 'lm', se= F) +
+  labs(y= "Average Cases Per Year",
+       caption = "*Note: Diseases that could also be considered water-borne were excluded from food_borne") +
+  scale_color_manual(name="Transmission", 
+                     values= c("seagreen3",
+                               "royalblue",
+                               "purple4")) -> q4_point
+q4_point
+#cvd_grid(q4_point)
+
+#infect_data_transmission |>
+#  filter(Sex == "Total", 
+#         County== "California",
+#         Transmission=="vectorborne") |>
+#  group_by(Year) |> 
+#  mutate(mean_cases=mean(Cases)) -> q4_vector_data
+
+## Correlation test for vector-borne disease ##
+#cor.test(q4_vector_data$mean_cases,
+#         q4_vector_data$Population, 
+#        method = "pearson")
+
+#model_vector <- lm(formula = q4_vector_data$mean_cases ~ q4_vector_data$Population)
+#summary(model_vector)
+
+## Correlation test for food-borne disease ##
+#infect_data_transmission |>
+#  filter(Sex == "Total", 
+#         County== "California",
+#         Transmission=="foodborne") |>
+#  group_by(Year) |> 
+#  mutate(mean_cases=mean(Cases)) -> q4_food_data
+
+#cor.test(q4_food_data$mean_cases,
+#         q4_food_data$Population, 
+#        method = "pearson")
+
+#model_food <- lm(formula = q4_food_data$mean_cases ~ q4_food_data$Population)
+#summary(model_food)
+
+## Correlation test for all other disease ##
+#infect_data_transmission |>
+#  filter(Sex == "Total", 
+#         County== "California",
+#         Transmission=="other") |>
+#  group_by(Year) |> 
+#  mutate(mean_cases=mean(Cases)) -> q4_other_data
+
+#cor.test(q4_other_data$mean_cases,
+#         q4_other_data$Population, 
+#        method = "pearson")
+
+#model_other <- lm(formula = q4_other_data$mean_cases ~ q4_other_data$Population)
+#summary(model_other)
+```
+
+
+#### Q5. Are males or females more likely to get Coccidioidomycosis in Kern County?
+Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in Kern County ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.002205$). Year was also found to be a good predictor for Coccidioidomycosis status in Kern County from 2001-2022 ($p=0.000578$). However, population was not found to be a good predictor in the model ($p=0.0608$).
+```{r q5, fig.width= 8.5, fig.height=5}
+infect_data |> 
+  filter(County == "Kern",
+         Sex == "Total") |> 
+  group_by(Disease) |> 
+  summarize(total_cases = sum(Cases)) |> 
+  arrange(-total_cases) |> 
+  slice(1:5) |> 
+  ungroup() |> 
+  select(Disease) |> 
+  pull() -> top_disease_kern #Make a vector of the top diseases in Kern County.
+
+infect_data |> 
+  filter(County == "Kern",
+         Sex != "Total",
+         Disease %in% top_disease_kern) |> 
+  group_by(Disease, Sex) |> 
+  summarize(total_cases = sum(Cases)) |> 
+  ungroup() -> q4_data  #Make a tibble of the total number of cases of those top diseases grouped by sex and disease in Kern.
+
+q4_data|> 
+  ggplot(aes(y=total_cases,
+             x=Sex,
+             fill=Sex)) +
+  geom_col() +
+  facet_wrap(vars(Disease),
+             nrow=1,
+             scales="free") +
+    scale_fill_manual(values= c("lightpink2",
+                               "lightblue2"))
+
+
+## Chi-squared goodness-of-fit:  males vs. females ("Coccidioidomycosis")
+#q4_data |> 
+#  filter(Disease=="Coccidioidomycosis") |> 
+#  select(total_cases) -> chi_squared_observed_Coccidioidomycosis
+
+#null_probabilities <- c(1/2, 1/2)
+
+#chisq.test(chi_squared_observed_Coccidioidomycosis,
+#           p=null_probabilities) ## Reject the null. Men are more likely to be infected with "Coccidioidomycosis" in Kern County.
+
+#infect_data |> 
+#  filter(County =="Kern",
+#         Disease=="Coccidioidomycosis",
+#         Sex != "Total") -> q5_model_data
+
+#model <- lm(q5_model_data$Cases ~ #q5_model_data$Population+q5_model_data$Sex+q5_model_data$Year)
+
+#summary(model)
+
+```
+
+#### Q5.1. Are males or females more likely to get Coccidioidomycosis in California?
+The findings in Kern County were consistent with California overall. Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in California ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.00447$). Year was also found to be a good predictor for Coccidioidomycosis status in California from 2001-2022 ($p=0.00332$). However, population was not found to be a good predictor in the model ($p=0.0881$).
+```{r q5_1, fig.width= 9.5, fig.height=6}
+## Overall in California
+infect_data |> 
+  filter(Sex != "Total",
+         County== "California",
+         Disease %in% top_disease_kern) |> 
+  group_by(Disease, Sex) |> 
+  summarize(total_cases = sum(Cases)) |> 
+  ungroup() -> q5_1_data #Make a tibble of the total number of cases of those top diseases grouped by sex and disease in California.
+
+q5_1_data|> 
+  ggplot(aes(y=total_cases,
+             x=Sex,
+             fill=Sex)) +
+  geom_col() +
+  facet_wrap(vars(Disease),
+             nrow=2,
+             scales="free") +
+    scale_fill_manual(values= c("lightpink2",
+                               "lightblue2"))
+## Chi-squared goodness-of-fit:  males vs. females ("Coccidioidomycosis")
+#q5_1_data |> 
+#  filter(Disease=="Coccidioidomycosis") |> 
+#  select(total_cases) -> chi_squared_observed_Coccidioidomycosis
+
+
+#chisq.test(chi_squared_observed_Coccidioidomycosis,
+#           p=null_probabilities) ## Reject the null. Men are more likely to be infected with "Coccidioidomycosis" in California
+
+
+#infect_data |> 
+#  filter(County =="California",
+#         Disease=="Coccidioidomycosis",
+#         Sex != "Total") -> q5_model_data_cali
+
+#model <- lm(q5_model_data_cali$Cases ~ q5_model_data_cali$Population+q5_model_data_cali$Sex+q5_model_data_cali$Year)
+
+#summary(model)
+  
+```
