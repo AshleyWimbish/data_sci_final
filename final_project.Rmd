@@ -21,7 +21,13 @@ Tiger got to sleep, bird got to land;
 Man got to tell himself he understand.”
 -Kurt Vonnegut
 
-In their paper, [A hypothesis is a liability](https://doi.org/10.1186/s13059-020-02133-w), Yanai and Lercher argue that hypotheses come with a hidden cost. Our minds focus on the specific hypothesis we want to disprove, preventing us from finding new ideas in data. In the paper, subjects of their experiment were given a data set to analyze. Some had specific hypothesis to test while others were asked to simply explore the data. However, there was an important glaring pattern in the data. A simple scatterplot of the data revealed the picture of a gorilla. They found that people with a specific hypothesis to test were *more* likely to miss this pattern in the data. This idea is similar to another in the philosophy of science. Similarly, Norwood Russell Hanson argued that astronomers Kepler and Brahe, opposing in theory, literally saw different things at dawn. Modern post-hoc analyses also add to the statistical power of hypothesis tests. They allow us to aggregate large sample sizes that are more likely to be normal distributed regardless of the population's distribution (Figure 1). Normal distributions are remarkably helpful because they are predictable. We can predict where values will fall based on the mean and standard deviation. I agree with the conclusion of Yanai and Lercher, especially after performing my own data analysis project. There dozens of tables and plots that did not make into this final document because there were more interesting patterns I did not initially think about.The following report is my exploration and post-hoc analysis of a data set published by The California Department of Public Health from 22 years of disease records. It demonstrates many of the skills I gained from participating in research, independent learning and Data Science for Biologists at Rowan University.
+In their paper, [A hypothesis is a liability](https://doi.org/10.1186/s13059-020-02133-w), Yanai and Lercher argue that hypotheses come with a hidden cost. Our minds focus on the specific hypothesis we want to disprove, preventing us from finding new ideas in data. In the paper, subjects of their experiment were given a data set to analyze. Some had specific hypotheses to test while others were asked to explore the data. However, there was an important pattern in the data. A scatterplot of the data revealed the picture of a gorilla. They found that people with a specific hypothesis to test were less likely to find this pattern in the data. This idea is similar to another in the Philosophy of Science called theory-ladenness of observation. Similarly, Norwood Russell Hanson argued that astronomers Kepler and Brahe, opposing in theory, literally saw different things at dawn. Their different theories skewed their perception of the same event in favor of their hypothesis. Interestingly, even as our observations become more verifiable, this idea persists in hypotheses. These instances present a defense for exploratory/post-hoc analyses. The absence of hypotheses in exploratory/post-hoc analyses allows a full view of the patterns in observations/data. 
+<br><br>
+Modern post-hoc analyses also add to the statistical power of hypothesis tests. They allow us to aggregate large sample sizes more likely to be normally distributed regardless of the population’s distribution (Figure 1). Normal distributions are remarkably helpful because they are predictable. We can predict where values will fall based on the mean and standard deviation. Of course, there will always be a place for hypothesis-driven research. But, I agree with the conclusion of Yanai and Lercher, especially after performing my own data analysis project. 
+<br><br>
+Dozens of tables and plots did not make it into this final document because there were more interesting patterns I did not initially think about. The following report is my exploration and post-hoc analysis of a data set published by The California Department of Public Health from 22 years of disease records. It demonstrates many skills I gained from participating in research, independent learning, and Data Science for Biologists at Rowan University designed by [Dr. Stephanie Spielman](https://github.com/sjspielman) and adapted by [Dr. Sara Wright](https://csm.rowan.edu/departments/bbs/facultystaff/bbs_full_part/wright-sara.html). Further consideration is needed to present relevant epidemiological findings.
+
+
 
 ## Figure 1 {.tabset}
 Each plot consists of 100 means of random numbers from different sample sizes (2,10, and 50). All values were taken from a uniform distribution.
@@ -93,9 +99,9 @@ theme_set(theme_minimal())
 <br>
 
 # Data Set Introduction
-The [Infectious Diseases by Disease, County, Year, and Sex Dataset](https://catalog.data.gov/dataset/infectious-diseases-by-disease-co unty-year-and-sex-8912) published by The California Department of Public Health is to refer as `infect_data` in this analysis. `infect_data` contains case counts for selected infectious diseases from different counties in California from 2001 through 2022.
+The [Infectious Diseases by Disease, County, Year, and Sex Dataset](https://catalog.data.gov/dataset/infectious-diseases-by-disease-county-year-and-sex-6e856) published by The California Department of Public Health is to refer as `infect_data` in this analysis. `infect_data` contains case counts for selected infectious diseases from different counties in California from 2001 through 2022.
 <br><br>
-The data piqued my interest because it includes a wide range of infectious diseases. Some of which are food borne illnesses. I also thought it was interesting that the cases are sorted by sex. I found [sex-specific virulence](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5159935/) has been theorized in a wide range of diseases when researching for this project. Which was a new concept for me.<!--This would be a great topic for more research in day science as well. Both in biological science and epidemiology. --> There may also be an epidemiological trend of infectious disease cases based on sex with or without biological basis.
+The data piqued my interest because it includes a wide range of infectious diseases. Some of which are food-borne illnesses. I also thought it was interesting that the cases are sorted by sex. When researching for this project, I found that [sex-specific virulence](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5159935/) has been theorized in many diseases, which was a new concept for me.<!--This would be a great topic for more research in day science as well. Both in biological science and epidemiology. --> I wanted to investigate if there are also epidemiological trends of infectious disease cases based on sex with or without a biological basis.
 
 
 ```{r read-and-wrangle-data, include=FALSE}
@@ -123,7 +129,7 @@ infect_csv |> ##REMOVE DISEASES WITH NO CASES AT ALL
   pull() -> no_cases# NO CASES FOR Yellow Fever, Viral Hemorrhagic Fevers (including Crimean-Congo, Ebola, Lassa, and Marburg viruses), "Domoic Acid Poisoning" or Anthrax
 
 infect_csv |> 
-  mutate(infection_rate = Cases/Population) |> 
+  mutate(infection_rate = (Cases *100000)/Population) |> 
   drop_na() |> #removing all of the missing data points
   filter(! Disease %in% no_cases)-> infect_data 
 
@@ -167,18 +173,29 @@ infect_data |>
 
 The variables in the dataset are as follows:
 
-  + `Disease`: the disease recorded for each case count
-  + `County`: the county that each count of cases occured
-  + `Year`: the year that each case count was taken
-  + `Sex`: `Male`, `Female`, or `Total`
-  + `Cases`: count of cases
-  + `Population`: population for each county in a given year
-  + `Rate`: rate of infection from the original data-set ("-" indicates rate of zero)
-  + `Lower_95_CI`: Lower 95% confidence interval of `Rate`
-  + `Upper_95_CI`: Upper 95% confidence interval of `Rate`
-  + `infection_rate`: the infection rate created for this project 
-  + `Transmission`: mode of transmission (diseases that could also be considered water-borne were excluded from the `food_borne` level)
+  + `Disease`: The Diseases reported for each case count
+<br>
+  + `County`: The county in which the case occurred when they were diagnosed and State-wide total.
+<br>
+  + `Year`: Estimated onset date ranging from the date of first appearance of symptoms to the date reported to the California Department of Public Health. 
+<br>
+  + `Sex`: The patient's sex as reported. Categories include as `Female` (including transgender women) and `Male` (including transgender men).  `Total` includes the sum of `Male`,  `Female`  and "Other". "Other" indicates people whose reported gender was other than `Male` or `Female`/missing.
+<br>
+  + `Cases`: count of cases per disease meeting the surveillance case definition.
+<br>
+  + `Population`: The estimated population size (rounded to the nearest integer) for each county, year, and sex.
+<br>
+  + `Rate`:  The number of cases per 100,000 inhabitants in the population ((Cases *100,000)/Population). "-" indicates rate of zero.
+<br>
+  + `Lower_95_CI`: Lower bound of the 95% confidence interval of `Rate`
+<br>
+  + `Upper_95_CI`: Upper bound of the 95% confidence interval of `Rate`
+<br>
+  + `infection_rate`: Infection rate was created for this project to exclude characters in `Rate`. It was created using the same calculation ((Cases *100,000)/Population).
+<br>
+  + `Transmission`: Mode of transmission categories were created for this project. (diseases that could also be considered water-borne were excluded from the `food_borne` level)
 
+Descriptions were provided by the full data dictionary available [here](https://catalog.data.gov/dataset/infectious-diseases-by-disease-county-year-and-sex-6e856).
 <br>
 
 ## Q1. Across all diseases, which counties in California have the highest infectious disease rate from 2001-2022? {.tabset}
@@ -206,7 +223,7 @@ infect_data_transmission |>
   geom_point(shape = 21, 
              size = 3.5,
              show.legend=FALSE) +
-  labs(x= "Mean Infection Rate",
+  labs(x= "Mean Infection",
       y= "County",
       title= "Highest California Counties by Average Infection Rate",
       subtitle= "Infection Rate Across all Diseases From 2001-2022") -> q1_plot_1
@@ -294,12 +311,12 @@ infect_data_transmission_q2 |>
   summarize(mean_rate = mean(infection_rate)) |> 
   arrange(-mean_rate) |> 
   slice(1:15) |> 
-  mutate(Percentage = mean_rate*100) |> 
+  mutate(Rate = mean_rate) |> 
   select(-mean_rate)-> q2_tibble
 
 
 knitr::kable(q2_tibble, digits = 4, 
-             caption= "Highest Average Percentage of Food-Borne Illness in California by Year")
+             caption= "Highest Average Infection Rate of Food-Borne Illness per 100,000 Inhabitants in California ")
 
 ```
 
@@ -440,10 +457,10 @@ ggsave(file.path(figure_path, "question_4.png"),
 ```
 
 
-## Q5. Are males or females more likely to get Coccidioidomycosis? {.tabset}
+## Q5. Are males or females more likely to get the most common diseases in Kern County? {.tabset}
 
 ### In Kern County
-Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in Kern County ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.002205$). Year was also found to be a good predictor for Coccidioidomycosis status in Kern County from 2001-2022 ($p=0.000578$). However, population was **not** found to be a good predictor in the model ($p=0.0608$).
+Statistical tests were performed on Coccidioidomycosis cases. Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in Kern County ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.002205$). Year was also found to be a good predictor for Coccidioidomycosis status in Kern County from 2001-2022 ($p=0.000578$). However, population was **not** found to be a good predictor in the model ($p=0.0608$).
 ```{r q5, fig.width= 8.5, fig.height=5}
 infect_data |> 
   filter(County == "Kern",
@@ -505,7 +522,7 @@ ggsave(file.path(figure_path, "question_5_figure_1.png"),
 ```
 
 ### In California
-The findings in California were consistent with Kern County. Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in California ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.00447$). Year was also found to be a good predictor for Coccidioidomycosis status in California from 2001-2022 ($p=0.00332$). However, population was **not** found to be a good predictor in the model ($p=0.0881$).
+Statistical tests were performed on Coccidioidomycosis cases. The findings in California were consistent with Kern County. Based on a chi-squared goodness of fit test, males are more likely to get Coccidioidomycosis in California ($p<2.2*10{-16}$). A mixed model also found that sex is a good predictor of whether a person has Coccidioidomycosis ($p=0.00447$). Year was also found to be a good predictor for Coccidioidomycosis status in California from 2001-2022 ($p=0.00332$). However, population was **not** found to be a good predictor in the model ($p=0.0881$).
 ```{r q5_1, fig.width= 9.5, fig.height=6}
 ## Overall in California
 infect_data |> 
