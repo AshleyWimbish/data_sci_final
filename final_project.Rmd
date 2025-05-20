@@ -23,27 +23,29 @@ Man got to tell himself he understand.”
 
 ## A Hypothesis is a Liability
 
-In the early 1600's the discovery of sunspots struck the European world of astronomy. Sunspots had been sparsely documented earlier by astronomers in China and Greece, but, in the West, it was believed that the celestial sphere was unique and unchanging. The combination of this belief and difficulty visualizing the sun left observations of sunspots ignored for hundreds of years. In a literature review, various instances of data/observation dependent analyses were evaluated to assess the current stance in biostatistics and scientific fields.
+In the early 1600s, the discovery of sunspots struck the European world of astronomy. Sunspots had been sparsely documented earlier by astronomers in China and Greece, but, in the West, it was believed that the celestial sphere was unique and unchanging. The combination of this belief and difficulty visualizing the sun left observations of sunspots ignored for hundreds of years. In a literature review, various instances of data/observation-dependent analyses were evaluated to assess the current stance in biostatistics and scientific fields.
 <br>
 
-In their paper, ["A hypothesis is a liability"](https://doi.org/10.1186/s13059-020-02133-w), Yanai and Lercher argue that hypotheses come with a hidden cost. Our minds focus on the specific hypothesis we want to disprove, preventing us from finding new ideas in data. In the paper, subjects of their experiment were given a data set to analyze. Some participants had specific hypotheses to test while others were asked to explore the data. However, in the data was an important pattern, a scatterplot of the data revealed the picture of a gorilla. They found that people with a specific hypothesis to test were *less* likely to find this pattern in the data. This idea is similar to another in the Philosophy of Science called theory-ladenness of observation. Similarly, Norwood Russell Hanson argued that astronomers Kepler and Brahe, opposing in theory, literally saw different things at dawn. Their different theories skewed their perception of the same event in favor of their hypothesis. Interestingly, even as our observations become more verifiable, this idea persists in hypotheses. These instances present a defense for exploratory/post-hoc analyses and paradox within [the hypothetico-deductive model of science](https://journals.lww.com/academicmedicine/fulltext/2020/05000/the_positivism_paradigm_of_research.16.aspx). 
+In their paper, ["A hypothesis is a liability"](https://doi.org/10.1186/s13059-020-02133-w), Yanai and Lercher argue that hypotheses come with a hidden cost. Our minds focus on the specific hypothesis we want to disprove, preventing us from finding new ideas in data. In the paper, the subjects of their experiment were given a data set to analyze. Some participants had specific hypotheses to test, while others were asked to explore the data. However, an important pattern, a scatterplot of the data, revealed the picture of a gorilla. They found that people with a specific hypothesis to test were *less* likely to see this pattern in the data. This idea is similar to another in the Philosophy of Science called the theory-ladenness of observation. Similarly, Norwood Russell Hanson argued that astronomers Kepler and Brahe, opposing in theory, literally saw different things at dawn. Their different theories skewed their perception of the same event in favor of their hypothesis. Interestingly, even as our observations become more verifiable, this idea persists in hypotheses. These instances present a defense for exploratory/post-hoc analyses and a paradox within [the hypothetico-deductive model of science](https://journals.lww.com/academicmedicine/fulltext/2020/05000/the_positivism_paradigm_of_research.16.aspx). 
 <br>
 
-The absence of hypotheses in exploratory analyses allows a full view of the patterns in observations/data beyond biases and assumptions. I agree with the conclusions of Yanai and Lercher, especially after performing my own data analysis project. Dozens of tables and plots did not make it into this final document because there were more insightful patterns I did not initially think about. I was not asking the right questions. Exploratory data visualization is important to reveal patterns for any further statistical testing. However questions remain on the subject of post hoc analyses. [Studies, even "failed" ones that did not reach their intended endpoint, have valuable information that could inform future studies](https://www.als.net/news/what-is-post-hoc-analysis-in-a-clinical-trial/). It a costly to conduct research and collect new data. Some post-hoc analyses would allow us to aggregate large sample sizes from previous studies.  These samples are more likely to be normally distributed regardless of the population’s distribution (Figure 1). These distributions are remarkably helpful because they are a well studied predictable tool for statistical modeling. Additionally, some post-hoc tests like the Tukey and Scheffe test are standard within introductory statistics. They are used as an alternative to running multiple significance tests when further comparison is needed.
+The absence of hypotheses in exploratory analyses allows a full view of the patterns in observations/data beyond biases and assumptions. I agree with the conclusions of Yanai and Lercher, especially after performing my own data analysis project. Dozens of tables and plots did not make it into this final document because there were more insightful patterns I did not initially think about. I was not asking the right questions. Exploratory data visualization is vital to reveal patterns for any further statistical testing. However, questions remain on the subject of post hoc analyses. [Studies, even "failed" ones that did not reach their intended endpoint, have valuable information that could inform future studies](https://www.als.net/news/what-is-post-hoc-analysis-in-a-clinical-trial/).  It is costly to conduct research and collect new data. Some post-hoc analyses would allow us to aggregate large sample sizes from previous studies. These samples are more likely to be normally distributed regardless of the population’s distribution (Figure 1). These distributions are remarkably helpful because they are a well-studied, predictable tool for statistical modeling. Some post-hoc tests, like the Tukey and Scheffe tests, are standard within introductory statistics. They are an alternative to running multiple significance tests when further comparison is needed.
 <br>
 
 ### False Positive Rates and Fishing
-In stark contrast, post-hoc analyses are also commonly criticized for their potential for fishing expeditions or p-hacking, the intentional repeated adjustment of data processing and analysis until the desired test statistic is reached. Multiple significance tests generate large false positive rates by a principle from probability. The probability of an outcome is greater, more likely to occur at least once, when it is tested multiple times. The same holds true for the probability of a false positive. Bland and Altman offer a good example in their paper ["Multiple significance tests: the Bonferroni method"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2548561/pdf/bmj00576-0038.pdf). At the standard 0.05 significance level, we except 1 in 20 cases to produce a positive result by chance. If we conduct 20 independent tests, that increases the probability that at least one is falsely positive to 64% rather than the 5% that would be reported. Resulting in, a dramatically understated false positive rate, and thus increasing the potential for false positive results despite reported significance levels. Intuitively this makes sense, there is a huge degree of freedom a researcher can take in analysis of post-hoc data. 
+In stark contrast, post-hoc analyses are also commonly criticized for their potential for fishing expeditions or p-hacking, the intentional repeated adjustment of data processing and analysis until the desired test statistic is reached. Multiple significance tests generate large false positive rates by a principle from probability. The probability of an outcome is greater and more likely to occur at least once when it is tested multiple times. The same holds true for the likelihood of a false positive. Bland and Altman offer a good example in their paper ["Multiple significance tests: the Bonferroni method"](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2548561/pdf/bmj00576-0038.pdf). At the standard 0.05 significance level, we expect 1 in 20 cases to produce a positive result by chance. Conducting 20 independent tests increases the probability that at least one is falsely positive to 64% rather than the 5% that would be reported. This results in a dramatically understated false positive rate and thus increases the potential for false positive results despite reported significance levels. Intuitively, this makes sense; there is a considerable degree of freedom a researcher can take in the analysis of post-hoc data. 
 <br>
 
-However, in their paper "The garden of forking paths: Why multiple comparisons can be a problem, even when there is no “fishing expedition” or “p-hacking” and the research hypothesis was posited ahead of time" Gelman and Loken show that even with the best intentions a single scientific hypothesis can be interpreted as multiple statistical hypotheses adding a new data-dependent variable to the analysis in the form of researcher degrees of freedom. Researcher degrees of freedom are choices in data collection, analysis and reporting made by the researcher. In ["False-Positive Psychology: Undisclosed Flexibility in Data Collection and Analysis Allows Presenting Anything as Significant"](https://journals.sagepub.com/doi/10.1177/0956797611417632), Simmons and colleagues, through stimulated analyses, found that certain combinations of researcher degrees of freedom can produce false positive rates up to 80%. The same issues of repeated adjustments in sub-grouping, sample size, and dependent variables exist in standard analyses. So, how do we proceed when the hypothesis is a function of the data it questions? Simmons and others critique common solutions researchers are drawn to, including a few I had thought of as alternatives, such as transparency in materials and data, bayesian statistics, and correcting p values. They ultimately land on a set of rigorous guidelines for researchers and reviewers to increase transparency.
+However, in their paper “The garden of forking paths: Why multiple comparisons can be a problem, even when there is no “fishing expedition” or “p-hacking” and the research hypothesis was posited ahead of time” Gelman and Loken show that even with the best intentions a single scientific hypothesis can be interpreted as multiple statistical hypotheses adding a new data-dependent variable to the analysis in the form of researcher degrees of freedom. Researchers' degrees of freedom are choices in data collection, analysis, and reporting made by the researcher. In ["False-Positive Psychology: Undisclosed Flexibility in Data Collection and Analysis Allows Presenting Anything as Significant"](https://journals.sagepub.com/doi/10.1177/0956797611417632), Simmons and colleagues, through stimulated analyses, found that certain combinations of researcher degrees of freedom can produce false positive rates up to 80%. The same issues of repeated adjustments in sub-grouping, sample size, and dependent variables exist in standard analyses. So, how do we proceed when the hypothesis is a function of the data it questions? Simmons and others critique standard solutions researchers are drawn to, including a few I had thought of as alternatives, such as transparency in materials and data, Bayesian statistics, and correcting p-values. They ultimately land on rigorous guidelines for researchers and reviewers to increase transparency.
  <br>
 
 ### Report Summary and Conclusion
 In brief, much consideration must be taken when performing post-hoc analyses. Perhaps exploratory and post-hoc studies exist solely to generate new hypotheses and find interesting patterns unburdened by the narrowed scope of theory. Or, possibly, as we develop our statistical knowledge, we will be able to better mediate researcher degrees of freedom and issues with multiple significance tests. Statistics is a vital component of scientific research. Scientific research is built on and should reward questioning data and generating new hypotheses, not weaken results and credibility. The challenge lies in connecting that work but to rigorous and decisive mathematics. The rigor of a study is only as good as its statistics.
 <br>
 
-The following report (Section 2) is my exploration and post-hoc analysis of a data set published by The California Department of Public Health from 22 years of disease records. Further consideration is needed to present relevant epidemiological findings. It demonstrates many skills I gained from participating in research, independent learning, and Data Science for Biologists at Rowan University designed by [Dr. Stephanie Spielman](https://github.com/sjspielman) and adapted by [Dr. Sara Wright](https://csm.rowan.edu/departments/bbs/facultystaff/bbs_full_part/wright-sara.html). 
+In brief, much consideration must be taken when performing post-hoc analyses. Perhaps exploratory and post-hoc studies exist solely to generate new hypotheses and find interesting patterns unburdened by the narrowed scope of theory. Or, as we develop our statistical knowledge, we can better mediate researchers’ degrees of freedom and issues with multiple significance tests. Statistics is a vital component of scientific research. Scientific research is built on and should reward questioning data and generating new hypotheses, not weaken results and credibility. The challenge lies in connecting that work to rigorous and decisive mathematics. The rigor of a study is only as good as its statistics.
+
+The following report (Section 2) is my exploration and post-hoc analysis of a data set published by the California Department of Public Health from 22 years of disease records. Further consideration is needed to present relevant epidemiological findings. It demonstrates many skills I gained from participating in research, independent learning, and Data Science for Biologists at Rowan University, designed by [Dr. Stephanie Spielman](https://github.com/sjspielman) and adapted by [Dr. Sara Wright](https://csm.rowan.edu/departments/bbs/facultystaff/bbs_full_part/wright-sara.html). 
 
 
 
@@ -119,15 +121,12 @@ theme_set(theme_minimal())
 # **Section 2: Data Set Introduction**
 The [Infectious Diseases by Disease, County, Year, and Sex Dataset](https://catalog.data.gov/dataset/infectious-diseases-by-disease-county-year-and-sex-6e856) published by The California Department of Public Health is to refer as `infect_data` in this analysis. `infect_data` contains case counts for selected infectious diseases from different counties in California from 2001 through 2022.
 <br><br>
-The data piqued my interest because it includes a wide range of infectious diseases. Some of which are food-borne illnesses. I also thought it was interesting that the cases are sorted by sex. When researching for this project, I found that [sex-specific virulence](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5159935/) has been theorized in many diseases, which was a new concept for me.<!--This would be a great topic for more research in day science as well. Both in biological science and epidemiology. --> I wanted to investigate if there are also epidemiological trends of infectious disease cases based on sex with or without a biological basis.
+The data piqued my interest because it includes a wide range of infectious diseases. Some of which are food-borne illnesses. I also thought it was interesting that the cases are sorted by sex. When researching for this project, I found that [sex-specific virulence](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5159935/) has been theorized in many diseases, which was a new concept for me.<!--This would be a great topic for more research in day science as well. Both in biological science and epidemiology. --> I wanted to investigate if there are also epidemiological trends of infectious disease cases based on sex with or without a biological basis. For the purpose of this report the full data cleaning procedure is omitted.
 
 
 ```{r read-and-wrangle-data, include=FALSE}
 # Code to read in the data:
-data_path <- here::here("AWimbish",
-                         "final_project",
-                         "datasets",
-                         "infectious_disease_data.csv")
+data_path <- here::here("infectious_disease_data.csv")
 
 top_level_directory <- here::here()
 
@@ -251,9 +250,9 @@ infect_data_transmission |>
 q1_plot_1
 #colorblindr::cvd_grid(q1_plot_1)
 
-ggsave(file.path(figure_path, "question_1_figure_1.png"),
-       q1_plot_1, 
-       width=8, height=5)
+#ggsave(file.path(figure_path, "question_1_figure_1.png"),
+#       q1_plot_1, 
+#       width=8, height=5)
 ```
 
 ### Food-Borne
@@ -285,9 +284,9 @@ infect_data_transmission |>
 q1_plot_2
 #colorblindr::cvd_grid(q1_plot_2)
 
-ggsave(file.path(figure_path, "question_1_figure_2.png"),
-       q1_plot_2, 
-       width=8, height=5)
+#ggsave(file.path(figure_path, "question_1_figure_2.png"),
+#       q1_plot_2, 
+#       width=8, height=5)
 ```
 
 <br>
@@ -317,9 +316,9 @@ infect_data_transmission_q2 |>
 q2_plot
 #colorblindr::cvd_grid(q2_plot)
 
-ggsave(file.path(figure_path, "question_2.png"),
-       q2_plot, 
-       width=9, height=5)
+#ggsave(file.path(figure_path, "question_2.png"),
+#       q2_plot, 
+#       width=9, height=5)
 ```
 
 ```{r table_1, echo=FALSE}
@@ -362,9 +361,9 @@ infect_data_transmission_q2 |>
 q3_plot
 #colorblindr::cvd_grid(q3_plot)
 
-ggsave(file.path(figure_path, "question_3.png"),
-       q3_plot, 
-       width=8, height=5)
+#ggsave(file.path(figure_path, "question_3.png"),
+#       q3_plot, 
+#       width=8, height=5)
 
 #infect_data_transmission |>
 #  filter(Sex == "Total", 
@@ -426,9 +425,9 @@ infect_data_transmission |>
                                "purple4")) -> q4_plot
 q4_plot
 #colorblindr::cvd_grid(q4_plot)
-ggsave(file.path(figure_path, "question_4.png"),
-       q4_plot, 
-       width=8, height=5)
+#ggsave(file.path(figure_path, "question_4.png"),
+#       q4_plot, 
+#       width=8, height=5)
 
 #infect_data_transmission |>
 #  filter(Sex == "Total", 
@@ -516,9 +515,9 @@ q5_plot_1
 
 #colorblindr::cvd_grid(q5_plot_1)
 
-ggsave(file.path(figure_path, "question_5_figure_1.png"),
-       q5_plot_1, 
-       width=9.5, height=5)
+#ggsave(file.path(figure_path, "question_5_figure_1.png"),
+#       q5_plot_1, 
+#       width=9.5, height=5)
 
 ## Chi-squared goodness-of-fit:  males vs. females ("Coccidioidomycosis")
 #q4_data |> 
@@ -567,9 +566,9 @@ q5_1_data|>
 q5_plot_2
 #colorblindr::cvd_grid(q5_plot_2)
 
-ggsave(file.path(figure_path, "question_5_figure_2.png"),
-       q5_plot_2, 
-       width=9.5, height=5)
+#ggsave(file.path(figure_path, "question_5_figure_2.png"),
+#       q5_plot_2, 
+#       width=9.5, height=5)
 
 ## Chi-squared goodness-of-fit:  males vs. females ("Coccidioidomycosis")
 #q5_1_data |> 
